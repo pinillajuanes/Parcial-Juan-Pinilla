@@ -1,40 +1,82 @@
 import RickAndMortyService from './service';
 
+const service = new RickAndMortyService();
 
-// acá deberás crear una instancia del servicio RickAndMortyService
-// const service = new RickAndMortyService();
+function createCharacterCard(character) {
+    let statusColorClass = '';
+    let statusDotColor = '';
 
-// esta función debe encargarse de obtener el elemento contenedor
-// y agregar los personajes obtenidos por el API, deberás llamar tu función getAllCharacters
-// iterar el arreglo de personajes y llamar a la función createCharacterCard para agregar cada personaje
-// a el contenedor puedes usar la propiedad innerHTML para esto
+    if (character.status === 'Alive') {
+        statusColorClass = 'alive';
+        statusDotColor = 'green';
+    } else if (character.status === 'Dead') {
+        statusColorClass = 'dead';
+        statusDotColor = 'red';
+    } else {
+        statusColorClass = 'unknown';
+        statusDotColor = 'gray';
+    }
 
-// valor (1 punto)
-
-function createCharacterList() {
-    // llamar primero createCharacterCard(character);
-    // llamar segundo addCharacterListeners(character);
+    return `<div class="character-card">
+        <img src="${character.image}" alt="${character.name}" />
+        <div class="character-info">
+            <h2 class="${statusColorClass}">${character.name}</h2>
+            <p class="${statusColorClass}">
+                <span class="status-dot" style="background-color: ${statusDotColor};"></span>
+                ${character.status} - ${character.species}
+            </p>
+            <p class="${statusColorClass} text-gray">Last known location:</p>
+            <p class="${statusColorClass}">${character.location}</p>
+            <p class="${statusColorClass} text-gray">First seen in:</p>
+            <p class="${statusColorClass}">${character.firstSeen}</p>
+        </div>
+    </div>`;
 }
 
-// esta función debe devolver la estructura html en string de tu personaje ejemplo
-
-// `<div class="character">
-//      <span>${gender}</span>
-//      <span>${name}</span>
-// </div>`;
-
-// deberás usar los elementos correctos de HTML para poder visualizar el personaje
-
-// valor (1 punto) HTML
-
-function createCharacterCard(character) {}
-
-// esta función deberá obtener todos los personajes y deberá agregarles un evento de click
-// cuando se seleccione un personaje debe decir hola soy 'nombre personaje', recuerda que puedes obtener
-// el elemento target de un evento y así obtener sus propiedades
-
-function addCharacterListeners(character) {}
 
 
-// por último se llama la función y se renderiza la vista
+
+function addCharacterListeners(character) {
+    character.addEventListener('click', () => {
+        alert(`Hola, soy ${character.name}`);
+    });
+}
+
+async function createCharacterList() {
+    const container = document.getElementById('characterContainer');
+    
+    try {
+        const characters = await service.getAllCharacters();
+        const table = document.createElement('table');
+        let row;
+
+        characters.forEach((character, index) => {
+            if (index % 3 === 0) {
+                row = document.createElement('tr');
+            }
+
+            const cell = document.createElement('td');
+            cell.innerHTML = createCharacterCard(character);
+            addCharacterListeners(cell, character);
+            
+            row.appendChild(cell);
+
+            if ((index + 1) % 3 === 0 || index === characters.length - 1) {
+                table.appendChild(row);
+            }
+        });
+
+        container.appendChild(table);
+    } catch (error) {
+        console.error('Error creating character list:', error);
+    }
+}
+
+
+function addCharacterListeners(characterCard, character) { // Recibe el objeto character aquí
+    characterCard.addEventListener('click', () => {
+        alert(`Hola, soy ${character.name}`);
+    });
+}
+
 createCharacterList();
